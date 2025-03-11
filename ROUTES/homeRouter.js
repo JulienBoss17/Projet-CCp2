@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const User = require("../MODELS/Users");
 const Book = require("../MODELS/Books");
+const validator = require("validator")
 
 const verifySession = require("../MIDDLEWARES/verifysession");
 const verifySession2 = require("../MIDDLEWARES/verifysession2")
@@ -23,23 +24,36 @@ router.get("/compte", async (req, res) => {
 
 router.post("/register", async (req, res) => {
     try {
-        const existingUser = await User.findOne({ email: req.body.email });
-        if (existingUser) {
-            return res.redirect("/compte");
-        } else {
-            const hashedPassword = await bcrypt.hash(req.body.password, 10);
-            req.body.password = hashedPassword;
+        const { email, password } = req.body;
 
-            const newUser = new User(req.body);
-            await newUser.save();
-
-            return res.redirect("/compte");
+        if (!validator.isEmail(email)) {
+            return res.redirect("/compte"); 
         }
+
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.redirect("/compte"); 
+        }
+
+        if (!password) {
+            return res.status(400).json({ message: "Mot de passe requis" });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({ ...req.body, password: hashedPassword });
+
+        await newUser.save();
+
+        return res.redirect("/compte"); 
+
     } catch (err) {
-        console.error("Erreur lors de l'inscription :", err);
-        res.status(500).json({ message: err.message });
+        if (!res.headersSent) {  
+            console.error("Erreur lors de l'inscription :", err);
+            return res.status(500).json({ message: err.message });
+        }
     }
 });
+
 
 router.post("/login", async (req, res) => {
     try {
@@ -102,7 +116,16 @@ router.get("/deleteuser/:id", verifySession2(),async (req, res) => {
 router.delete("/deleteuser/:id", verifySession2(),async (req, res) => {
     const userId = req.params.id;
     try {
-        const user = await User.findByIdAndDelete(userId);
+        const user = await User.findById(userId);
+        const user2 = await User.findById(req.session.userId)
+
+
+        if(user._id.toString() !== user2._id.toString()) {
+            res.redirect("/compte")
+        }
+
+        await Book.deleteMany({ propriétaire: userId });
+        await User.findByIdAndDelete(userId);
 
         if (req.session.userId === userId) {
             req.session.status = 'Non connecté'; 
@@ -169,6 +192,22 @@ router.get("/deletebook/:id", verifySession("admin"), async (req, res) => {
     try {
         const book = await Book.findByIdAndDelete(bookId);
         res.redirect("/")
+    }
+    catch {
+        res.status(500).json({message: err.message})
+    }
+})
+
+router.get("/editbook/:id", verifySession2(),async (req, res) => {
+    const bookId = req.params.id
+    try {
+        const book = await Book.findById(bookId);
+        const user = await User.findById(req.session.userId)
+
+        if (book.propriétaire.toString() !== user._id.toString()) {
+            res.redirect("/")
+        }
+        res.render("editbook", { book });
     }
     catch {
         res.status(500).json({message: err.message})

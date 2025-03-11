@@ -44,10 +44,7 @@
             font-size: 14px;
             color: #666;
         }
-        
-        .container button:hover{
-            background-color: #3e8e41;
-        }
+
 
         .sub-container {
             display: flex;
@@ -60,7 +57,7 @@
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-
+        
         .sub-container h3 {
             margin-bottom: 5px;
             font-size: 18px;
@@ -71,7 +68,7 @@
             font-size: 14px;
             color: #666;
         }
-    </style>
+        </style>
     <%- include('../PARTIALS/navbar') %>
     <% if (user) { %>
         <div class="container">  
@@ -101,8 +98,9 @@
         </div>
         <div class="container">
             <form action="/logout" method="POST">
-                <button type="submit">Déconnexion</button>
+                <button type="submit">Se Déconnecter</button>
             </form>
+            <a href="/deleteuser/<%= user._id %>">Supprimer mon compte</a>
         </div>
     <% } else { %>
         <div class="container">
@@ -137,6 +135,5 @@
             </form>
         </div>
     <% } %>
-    <%- include('../PARTIALS/footer') %>
 </body>
 </html>

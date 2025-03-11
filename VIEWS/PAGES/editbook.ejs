@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="../style.css">
+    <title>Modification de l'utilisateur <%= user.nom %></title>
 </head>
 <body>
     <style>
@@ -69,14 +70,27 @@
 }
 </style>
     <%- include('../PARTIALS/navbar') %>
-        <h2>Mes livres :</h2>
-        <% books.forEach(book => { %>
-            <div class="container">
-                <h3>Titre : <%= book.titre %></h3>
-                <p>Auteur : <%= book.auteur %></p>
-                <p>Année de sortie : <%= new Date(book.year).toLocaleDateString("fr-FR") %></p>
-                <a href="/editbook/<%= book._id %>">Modifier ce livre</a>
-            </div>
-        <% }); %>
+    <div class="container">
+        <h1>Modification du livre "<%= book.titre %>"</h1>
+        <div class="sub-container">
+            <form action="/editbook/<%= book._id %>?_method=PUT" method="POST">
+                
+                <label for="titre">Titre du livre</label><br>
+                <input type="text" id="titre" name="titre" value="<%= book.titre %>"  required>
+                <br><br>
+            
+                <label for="auteur">Auteur</label><br>
+                <input id="auteur" name="auteur" rows="4" cols="50" value="<%= book.auteur %>"required>
+                <br><br>
+    
+                <label for="year">Année de publication</label><br>
+                <input type="date"  id="year" name="year" rows="4" cols="50" value="<%= new Date().toISOString().split('T')[0] %>" required>
+                <br><br>
+            
+                <input type="submit" value="Modifier le livre">
+            </form>
+        </div>
+        <a href="/compte">Revenir au compte</a> 
+    </div>
 </body>
 </html>
