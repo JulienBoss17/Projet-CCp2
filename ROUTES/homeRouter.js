@@ -214,4 +214,29 @@ router.get("/editbook/:id", verifySession2(),async (req, res) => {
     }
 })
 
+router.put("/editbook/:id", verifySession2(),async (req, res) => {
+    const bookId = req.params.id
+    try {
+        const { titre, auteur, year } = req.body;
+        const book = await Book.findById(bookId);
+        const user = await User.findById(req.session.userId)
+
+        if (book.propriétaire.toString() !== user._id.toString()) {
+            res.redirect("/")
+        }
+
+        book.titre = titre;
+        book.auteur = auteur;
+        book.year = year;
+
+        await book.save();
+        res.redirect("/")
+    }
+    catch
+    {
+        res.status(500).json({ message: err.message })
+    }
+
+})
+
 module.exports = router;
