@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../style.css">
+    <title>Document</title>
+</head>
+<body>
+    <style>
+        h2 {
+            text-align: center;
+            padding: 25px;
+        }
+
+        .container {
+            width: 900px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 20px;
+            margin: 0 auto;
+            margin-top: 25px;
+            font-family: Arial, sans-serif;
+        }
+
+        .container h2{
+            margin-bottom: 10px;
+            font-size: 20px;
+            color: #333;
+        }
+        
+        .container p{
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .container button:hover{
+            background-color: #3e8e41;
+        }
+
+        .sub-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 15px;
+            padding: 15px;
+            background: #c1c1c1;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sub-container h3 {
+            margin-bottom: 5px;
+            font-size: 18px;
+            color: #444;
+        }
+        
+        .sub-container p {
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+    <%- include('../PARTIALS/navbar') %>
+    <h2><%= Message %></h2>
+    <div>
+        <h2>Liste des livres</h2>
+        <% books.forEach(book => { %>
+            <div class="container">
+                <h3>Titre : <%= book.titre %></h3>
+                <p>Auteur : <%= book.auteur %></p>
+                <p>Année de sortie : <%= new Date(book.year).toLocaleDateString("fr-FR") %></p>
+                <div class="sub-container">
+
+                    <p>Propriétaire : <%= book.propriétaire.nom %> <%= book.propriétaire.prenom %> (<%= book.propriétaire.status %> actuellement)</p>
+                </div>
+                <% if(user) {%>
+                    <% if(user.role === "admin") {%>
+                        <a href="/deletebook/<%= book._id %>">Supprimer ce livre</a>
+                    <% } %>
+                <% } %>
+            </div>
+        <% }); %>
+    </div>
+    <%- include('../PARTIALS/footer') %>
+</body>
+</html>
